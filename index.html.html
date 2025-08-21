@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AI Interview Questions</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background-color: #f9f9f9;
+    }
+    h1 {
+      color: #333;
+    }
+    ul {
+      color: #555;
+      padding-left: 20px;
+    }
+    li {
+      margin-bottom: 10px;
+      font-size: 1.1em;
+    }
+    #error {
+      color: red;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Interview Questions</h1>
+  <ul id="questions-list"></ul>
+  <p id="error"></p>
+
+  <script>
+    fetch('/questions')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not OK');
+        }
+        return response.json();
+      })
+      .then(questions => {
+        const list = document.getElementById('questions-list');
+        list.innerHTML = '';
+        questions.forEach(q => {
+          const li = document.createElement('li');
+          li.textContent = q;
+          list.appendChild(li);
+        });
+      })
+      .catch(error => {
+        document.getElementById('error').textContent = 'Error loading questions: ' + error.message;
+        console.error('Fetch error:', error);
+      });
+  </script>
+</body>
+</html>
+
+

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Interview Platform - Start Interview</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+        .start-btn {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            border-radius: 10px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 20px 0;
+        }
+        .start-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 AI Interview Platform</h1>
+        <p>Welcome to our technical assessment platform</p>
+        <button class="start-btn" onclick="startInterview()">Start Interview</button>
+        <p><small>Note: The interview will open in a new window</small></p>
+    </div>
+
+    <script>
+        function startInterview() {
+            // Open interview in popup window - this CAN be closed by JavaScript
+            const popup = window.open('/', 'interview', 'width=1200,height=800,scrollbars=yes,resizable=yes');
+            
+            if (popup) {
+                // Focus on the popup
+                popup.focus();
+                
+                // Optional: Monitor when popup closes
+                const checkClosed = setInterval(() => {
+                    if (popup.closed) {
+                        clearInterval(checkClosed);
+                        alert('Interview window closed. Thank you for participating!');
+                    }
+                }, 1000);
+            } else {
+                alert('Popup blocked! Please allow popups for this site and try again.');
+            }
+        }
+    </script>
+</body>
+</html>

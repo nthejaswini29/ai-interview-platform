@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Interview Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .candidate-form-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .candidate-form-overlay input:focus,
+        .candidate-form-overlay select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            margin: 10px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 300px;
+            background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .logo p {
+            opacity: 0.8;
+            font-size: 14px;
+        }
+
+        .video-container {
+            background: #1a1a1a;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #candidateVideo {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .video-status {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #e74c3c;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .video-status.active {
+            background: #27ae60;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            min-width: 80px;
+            font-size: 12px;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .timer {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .timer h3 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .timer-display {
+            font-size: 24px;
+            font-weight: bold;
+            color: #f39c12;
+        }
+
+        .warnings {
+            background: rgba(231, 76, 60, 0.1);
+            border: 1px solid #e74c3c;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .warnings h4 {
+            color: #e74c3c;
+            margin-bottom: 10px;
+        }
+
+        .warning-item {
+            background: rgba(231, 76, 60, 0.2);
+            padding: 8px;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            font-size: 12px;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #ecf0f1;
+        }
+
+        .interview-info h2 {
+            color: #2c3e50;
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .interview-info p {
+            color: #7f8c8d;
+            font-size: 16px;
+        }
+
+        .question-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 5px solid #3498db;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .question-number {
+            background: #3498db;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .difficulty {
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .difficulty.easy { background: #d5f4e6; color: #27ae60; }
+        .difficulty.medium { background: #fff3cd; color: #f39c12; }
+        .difficulty.hard { background: #f8d7da; color: #e74c3c; }
+
+        .question-text {
+            font-size: 18px;
+            line-height: 1.6;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .answer-section {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .answer-textarea {
+            width: 100%;
+            min-height: 150px;
+            border: 2px solid #ecf0f1;
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 16px;
+            line-height: 1.5;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+
+        .answer-textarea:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .question-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+        }
+
+        .nav-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .progress-bar {
+            flex: 1;
+            margin: 0 20px;
+            height: 8px;
+            background: #ecf0f1;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2980b9);
+            transition: width 0.3s ease;
+        }
+
+        .warning-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(231, 76, 60, 0.95);
+            color: white;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            flex-direction: column;
+        }
+
+        .warning-overlay h2 {
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+
+        .warning-overlay p {
+            font-size: 18px;
+            text-align: center;
+            max-width: 600px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                margin: 5px;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+
+            .candidate-form-overlay {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Candidate Registration Form -->
+    <div class="candidate-form-overlay" id="candidateFormOverlay">
+        <div style="background: white; color: #2c3e50; border-radius: 20px; padding: 40px; max-width: 600px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto;">
+            <div style="font-size: 60px; margin-bottom: 20px;">🎯</div>
+            <h2 style="color: #2c3e50; margin-bottom: 10px;">Welcome to AI Interview Platform</h2>
+            <p style="color: #7f8c8d; margin-bottom: 30px;">Please fill in your details to start the technical assessment</p>
+            
+            <form id="candidateForm" style="text-align: left;">
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #2c3e50;">Full Name *</label>
+                    <input type="text" id="candidateName" required style="width: 100%; padding: 12px; border: 2px solid #ecf0f1; border-radius: 8px; font-size: 16px; box-sizing: border-box;">
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #2c3e50;">Email Address *</label>
+                    <input type="email" id="candidateEmail" required style="width: 100%; padding: 12px; border: 2px solid #ecf0f1; border-radius: 8px; font-size: 16px; box-sizing: border-box;">
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #2c3e50;">Phone Number *</label>
+                    <input type="tel" id="candidatePhone" required style="width: 100%; padding: 12px; border: 2px solid #ecf0f1; border-radius: 8px; font-size: 16px; box-sizing: border-box;">
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #2c3e50;">Location (City, Country) *</label>
+                    <input type="text" id="candidateLocation" required placeholder="e.g., Bangalore, India" style="width: 100%; padding: 12px; border: 2px solid #ecf0f1; border-radius: 8px; font-size: 16px; box-sizing: border-box;">
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #2c3e50;">Highest Education *</label>
+                    <select id="candidateEducation" required style="width: 100%; padding: 12px; border: 2px solid #ecf0f1; border-radius: 8px; font-size: 16px; box-sizing: border-box;">
+                        <option value="">Select your highest education</option>
+                        <option value="High School">High School</option>
+                        <option value="Diploma">Diploma</option>
+                        <option value="Bachelor's Degree">Bachelor's Degree</option>
+                        <option value="Master's Degree">Master's Degree</option>
+                        <option value="PhD">PhD</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #2c3e50;">Years of Experience</label>
+                    <select id="candidateExperience" style="width: 100%; padding: 12px; border: 2px solid #ecf0f1; border-radius: 8px; font-size: 16px; box-sizing: border-box;">
+                        <option value="">Select experience level</option>
+                        <option value="0-1 years">0-1 years (Fresher)</option>
+                        <option value="1-3 years">1-3 years (Junior)</option>
+                        <option value="3-5 years">3-5 years (Mid-level)</option>
+                        <option value="5-8 years">5-8 years (Senior)</option>
+                        <option value="8+ years">8+ years (Expert)</option>
+                    </select>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #2c3e50;">Position Applied For</label>
+                    <input type="text" id="candidatePosition" placeholder="e.g., Senior Java Developer" style="width: 100%; padding: 12px; border: 2px solid #ecf0f1; border-radius: 8px; font-size: 16px; box-sizing: border-box;">
+                </div>
+                
+                <div style="background: #e8f5e8; border: 1px solid #27ae60; border-radius: 10px; padding: 15px; margin-bottom: 20px;">
+                    <h4 style="color: #27ae60; margin-bottom: 10px;">📋 Interview Guidelines</h4>
+                    <ul style="font-size: 14px; color: #2c3e50; margin: 0; padding-left: 20px;">
+                        <li>Camera access is required throughout the interview</li>
+                        <li>Do not switch tabs or leave the interview window</li>
+                        <li>Answer questions with technical details and examples</li>
+                        <li>The interview will be automatically scored by AI</li>
+                        <li>Expected duration: 15-30 minutes</li>
+                    </ul>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="display: flex; align-items: center; cursor: pointer;">
+                        <input type="checkbox" id="consentCheckbox" required style="margin-right: 10px; transform: scale(1.2);">
+                        <span style="font-size: 14px; color: #2c3e50;">I consent to video recording and monitoring during this interview for assessment purposes *</span>
+                    </label>
+                </div>
+                
+                <button type="submit" style="width: 100%; background: linear-gradient(135deg, #3498db, #2980b9); color: white; border: none; padding: 15px; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; transition: all 0.3s ease; box-sizing: border-box;">
+                    Start AI Interview
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Warning Overlay -->
+    <div class="warning-overlay" id="warningOverlay">
+        <h2>⚠️ Interview Violation Detected</h2>
+        <p>You have switched tabs or left the interview window. This action has been recorded. Please return to the interview immediately.</p>
+    </div>
+
+    <!-- Main Interview Interface -->
+    <div class="container">
+        <div class="sidebar">
+            <div class="logo">
+                <h1>🎯 AI Interview</h1>
+                <p>Technical Assessment Platform</p>
+            </div>
+
+            <div class="video-container">
+                <video id="candidateVideo" autoplay muted playsinline></video>
+                <div class="video-status" id="videoStatus">Camera Off</div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-success" id="startCamera">Start Camera</button>
+                <button class="btn btn-danger" id="endInterview">End Interview</button>
+                <!-- TEST BUTTON FOR DEBUGGING -->
+                <button class="btn btn-primary" onclick="testRedirectDirect()" style="background: orange;">🧪 Test</button>
+            </div>
+
+            <div class="timer">
+                <h3>Interview Time</h3>
+                <div class="timer-display" id="timerDisplay">00:00:00</div>
+            </div>
+
+            <div class="warnings">
+                <h4>⚠️ Violations Log</h4>
+                <div id="warningsList">
+                    <div class="warning-item">No violations detected</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <div class="interview-info">
+                    <h2>Java Developer Interview</h2>
+                    <p>Technical Assessment - Senior Level Position</p>
+                </div>
+            </div>
+
+            <div class="question-section">
+                <div class="question-header">
+                    <span class="question-number" id="questionNumber">Question 1 of 10</span>
+                    <span class="difficulty medium" id="questionDifficulty">Medium</span>
+                </div>
+                
+                <div class="question-text" id="questionText">
+                    Loading question...
+                </div>
+
+                <div class="answer-section">
+                    <textarea 
+                        class="answer-textarea" 
+                        id="answerTextarea" 
+                        placeholder="Type your answer here... Be specific and provide examples where possible."
+                        oninput="saveAnswer()"
+                    ></textarea>
+                </div>
+            </div>
+
+            <div class="question-navigation">
+                <button class="nav-btn btn-primary" id="prevBtn" onclick="previousQuestion()">← Previous</button>
+                
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                
+                <button class="nav-btn btn-primary" id="nextBtn" onclick="nextQuestion()">Next →</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Interview state
+        let currentQuestionIndex = 0;
+        let questions = [];
+        let answers = {};
+        let violations = [];
+        let interviewStartTime = null;
+        let timerInterval = null;
+        let tabSwitchCount = 0;
+        let cameraActive = false;
+        let candidateInfo = {};
+        let videoStream = null; // Store the stream reference
+
+        // ✅ TEST FUNCTION FOR DEBUGGING
+        function testRedirectDirect() {
+            console.log('🧪 Testing direct redirect...');
+            alert('Testing redirect - you should see thank you page in 2 seconds');
+            setTimeout(() => {
+                window.location.href = '/thank-you?id=TEST123&score=85&name=TestUser';
+            }, 2000);
+        }
+
+        // Initialize interview
+        async function initializeInterview() {
+            try {
+                console.log('Fetching questions from server...');
+                const response = await fetch('/questions?count=10');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const questionsData = await response.json();
+                console.log('Questions received:', questionsData);
+                
+                // Convert to expected format and handle different response formats
+                questions = questionsData.map((q, index) => {
+                    let questionText = '';
+                    let difficulty = 'medium';
+                    
+                    if (typeof q === 'string') {
+                        questionText = q;
+                    } else if (q.text) {
+                        questionText = q.text;
+                        difficulty = q.difficulty || 'medium';
+                    } else if (q.question) {
+                        questionText = q.question;
+                        difficulty = q.difficulty || 'medium';
+                    } else {
+                        questionText = 'Question format error';
+                    }
+                    
+                    return {
+                        text: questionText,
+                        difficulty: difficulty,
+                        index: index + 1
+                    };
+                });
+                
+                console.log('Questions processed:', questions);
+                
+                if (questions.length === 0) {
+                    throw new Error('No questions received from server');
+                }
+                
+                displayCurrentQuestion();
+                updateProgress();
+                startTimer();
+                setupTabSwitchDetection();
+                setupVisibilityDetection();
+                preventRightClick();
+                preventKeyboardShortcuts();
+                
+                // ✅ FIX 1: AUTO-START CAMERA AFTER FORM SUBMISSION
+                await startCamera();
+                
+            } catch (error) {
+                console.error('Error loading questions:', error);
+                document.getElementById('questionText').innerHTML = `
+                    <div style="color: #e74c3c; text-align: center; padding: 20px;">
+                        <h3>⚠️ Error Loading Questions</h3>
+                        <p>Failed to load interview questions: ${error.message}</p>
+                        <p>Please check the console for more details.</p>
+                        <button onclick="window.location.reload()" style="background: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-top: 10px;">
+                            Reload Page
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        // Display current question
+        function displayCurrentQuestion() {
+            const question = questions[currentQuestionIndex];
+            if (!question) {
+                console.error('No question found at index:', currentQuestionIndex);
+                return;
+            }
+
+            console.log('Displaying question:', question);
+
+            document.getElementById('questionNumber').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+            
+            // Handle different question text formats
+            let questionText = '';
+            if (typeof question === 'string') {
+                questionText = question;
+            } else if (question.text) {
+                questionText = question.text;
+            } else if (question.question) {
+                questionText = question.question;
+            } else {
+                questionText = 'Question format error - please refresh the page';
+                console.error('Question format error:', question);
+            }
+            
+            document.getElementById('questionText').textContent = questionText;
+            
+            // Handle difficulty
+            let difficulty = 'medium';
+            if (question.difficulty) {
+                difficulty = question.difficulty;
+            }
+            
+            document.getElementById('questionDifficulty').textContent = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+            document.getElementById('questionDifficulty').className = `difficulty ${difficulty}`;
+            
+            // Load saved answer
+            const savedAnswer = answers[currentQuestionIndex] || '';
+            document.getElementById('answerTextarea').value = savedAnswer;
+            
+            // Update navigation buttons
+            document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
+            document.getElementById('nextBtn').textContent = currentQuestionIndex === questions.length - 1 ? 'Submit Interview' : 'Next →';
+        }
+
+        // Navigation functions
+        function nextQuestion() {
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                displayCurrentQuestion();
+                updateProgress();
+            } else {
+                submitInterview();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                displayCurrentQuestion();
+                updateProgress();
+            }
+        }
+
+        // Save answer
+        function saveAnswer() {
+            const answer = document.getElementById('answerTextarea').value;
+            answers[currentQuestionIndex] = answer;
+            console.log('Answer saved for question', currentQuestionIndex + 1);
+        }
+
+        // Update progress bar
+        function updateProgress() {
+            const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        // Timer functions
+        function startTimer() {
+            interviewStartTime = new Date();
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        function updateTimer() {
+            if (!interviewStartTime) return;
+            
+            const now = new Date();
+            const elapsed = new Date(now - interviewStartTime);
+            
+            const hours = String(elapsed.getUTCHours()).padStart(2, '0');
+            const minutes = String(elapsed.getUTCMinutes()).padStart(2, '0');
+            const seconds = String(elapsed.getUTCSeconds()).padStart(2, '0');
+            
+            document.getElementById('timerDisplay').textContent = `${hours}:${minutes}:${seconds}`;
+        }
+
+        // ✅ IMPROVED CAMERA FUNCTIONS WITH PROPER CLEANUP
+        async function startCamera() {
+            try {
+                console.log('Requesting camera access...');
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        width: { ideal: 640 }, 
+                        height: { ideal: 480 },
+                        facingMode: 'user' 
+                    }, 
+                    audio: false 
+                });
+                
+                videoStream = stream; // Store stream reference for cleanup
+                const video = document.getElementById('candidateVideo');
+                video.srcObject = stream;
+                
+                // Wait for video to be ready
+                video.onloadedmetadata = () => {
+                    video.play().then(() => {
+                        console.log('Camera started successfully');
+                        cameraActive = true;
+                        document.getElementById('videoStatus').textContent = 'Camera Active';
+                        document.getElementById('videoStatus').classList.add('active');
+                        document.getElementById('startCamera').textContent = 'Camera On';
+                        document.getElementById('startCamera').disabled = true;
+                    }).catch(err => {
+                        console.error('Error playing video:', err);
+                    });
+                };
+                
+            } catch (error) {
+                console.error('Error accessing camera:', error);
+                logViolation('Camera access denied or not available');
+                alert('Camera access is required for this interview. Please enable camera permissions and try again.');
+            }
+        }
+
+        // ✅ FIX 2: PROPER CAMERA/INTERVIEW CLEANUP
+        function stopCamera() {
+            console.log('Stopping camera...');
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => {
+                    track.stop();
+                    console.log('Stopped track:', track.kind);
+                });
+                videoStream = null;
+            }
+            
+            const video = document.getElementById('candidateVideo');
+            if (video) {
+                video.srcObject = null;
+                video.pause();
+            }
+            
+            cameraActive = false;
+            document.getElementById('videoStatus').textContent = 'Camera Off';
+            document.getElementById('videoStatus').classList.remove('active');
+            document.getElementById('startCamera').textContent = 'Start Camera';
+            document.getElementById('startCamera').disabled = false;
+            
+            console.log('Camera stopped completely');
+        }
+
+        function stopInterview() {
+            console.log('Stopping interview...');
+            
+            // Stop timer
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            
+            // Stop camera
+            stopCamera();
+            
+            // Reset interview state
+            currentQuestionIndex = 0;
+            answers = {};
+            violations = [];
+            interviewStartTime = null;
+            tabSwitchCount = 0;
+            
+            console.log('Interview stopped completely');
+        }
+
+        // ✅ FIX 3: ENHANCED TAB SWITCHING PREVENTION
+        function setupTabSwitchDetection() {
+            // Enhanced visibility change detection
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden && interviewStartTime) {
+                    tabSwitchCount++;
+                    console.log('Tab switch detected. Count:', tabSwitchCount);
+                    logViolation(`Tab switch detected (Count: ${tabSwitchCount})`);
+                    showWarningOverlay();
+                    
+                    // Terminate after 3 violations
+                    if (tabSwitchCount >= 3) {
+                        alert('Too many tab switches detected! Interview will be terminated.');
+                        submitInterview(true); // Submit with termination flag
+                    }
+                }
+            });
+
+            // Enhanced window focus detection
+            let wasTabSwitched = false;
+            
+            window.addEventListener('blur', function() {
+                if (interviewStartTime) {
+                    wasTabSwitched = true;
+                    console.log('Window lost focus');
+                    logViolation('Window lost focus - possible tab switch');
+                    setTimeout(() => {
+                        if (wasTabSwitched) {
+                            showWarningOverlay();
+                        }
+                    }, 100);
+                }
+            });
+
+            window.addEventListener('focus', function() {
+                if (wasTabSwitched && interviewStartTime) {
+                    console.log('Window regained focus');
+                    wasTabSwitched = false;
+                }
+            });
+
+            // Prevent navigation away from page
+            window.addEventListener('beforeunload', function(e) {
+                if (interviewStartTime) {
+                    const message = 'Are you sure you want to leave the interview? This will be recorded as a violation.';
+                    e.preventDefault();
+                    e.returnValue = message;
+                    logViolation('Attempt to leave interview page');
+                    return message;
+                }
+            });
+        }
+
+        function setupVisibilityDetection() {
+            // Additional mouse leave detection for better security
+            document.addEventListener('mouseleave', function() {
+                if (interviewStartTime) {
+                    logViolation('Mouse left window area');
+                }
+            });
+        }
+
+        function preventRightClick() {
+            document.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                logViolation('Right-click attempted (context menu blocked)');
+                return false;
+            });
+        }
+
+        function preventKeyboardShortcuts() {
+            document.addEventListener('keydown', function(e) {
+                // Block common shortcuts that could be used to cheat
+                const blockedKeys = [
+                    'F12', 'F5', // Developer tools, refresh
+                    'F11', // Fullscreen toggle
+                ];
+                
+                const blockedCombinations = [
+                    { ctrl: true, key: 'u' }, // View source
+                    { ctrl: true, key: 'U' }, // View source
+                    { ctrl: true, shift: true, key: 'i' }, // Developer tools
+                    { ctrl: true, shift: true, key: 'I' }, // Developer tools
+                    { ctrl: true, shift: true, key: 'j' }, // Console
+                    { ctrl: true, shift: true, key: 'J' }, // Console
+                    { ctrl: true, key: 'r' }, // Refresh
+                    { ctrl: true, key: 'R' }, // Refresh
+                    { ctrl: true, key: 't' }, // New tab
+                    { ctrl: true, key: 'T' }, // New tab
+                    { ctrl: true, key: 'w' }, // Close tab
+                    { ctrl: true, key: 'W' }, // Close tab
+                    { ctrl: true, key: 'n' }, // New window
+                    { ctrl: true, key: 'N' }, // New window
+                    { alt: true, key: 'Tab' }, // Alt+Tab
+                    { ctrl: true, shift: true, key: 'n' }, // Incognito
+                    { ctrl: true, shift: true, key: 'N' }, // Incognito
+                ];
+
+                if (blockedKeys.includes(e.key)) {
+                    e.preventDefault();
+                    logViolation(`Blocked key: ${e.key}`);
+                    return false;
+                }
+
+                for (let combo of blockedCombinations) {
+                    if ((combo.ctrl && e.ctrlKey) || (combo.alt && e.altKey) || (combo.shift && e.shiftKey)) {
+                        if (e.key.toLowerCase() === combo.key.toLowerCase()) {
+                            e.preventDefault();
+                            logViolation(`Blocked shortcut: ${combo.ctrl ? 'Ctrl+' : ''}${combo.alt ? 'Alt+' : ''}${combo.shift ? 'Shift+' : ''}${combo.key}`);
+                            return false;
+                        }
+                    }
+                }
+            });
+        }
+
+        function logViolation(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            violations.push({ message, timestamp });
+            
+            const warningsList = document.getElementById('warningsList');
+            if (violations.length === 1) {
+                warningsList.innerHTML = '';
+            }
+            
+            const warningItem = document.createElement('div');
+            warningItem.className = 'warning-item';
+            warningItem.textContent = `${timestamp}: ${message}`;
+            warningsList.appendChild(warningItem);
+            
+            console.log('Violation logged:', message);
+        }
+
+        function showWarningOverlay() {
+            const overlay = document.getElementById('warningOverlay');
+            overlay.style.display = 'flex';
+            
+            setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 3000);
+        }
+
+        // ✅ ENHANCED SUBMIT FUNCTION WITH PROPER SCORE DISPLAY
+        async function submitInterview(terminated = false) {
+            console.log('🔥 SUBMIT INTERVIEW STARTED');
+            
+            if (!cameraActive && !terminated) {
+                alert('Camera must be active to submit the interview.');
+                return;
+            }
+
+            // Show loading message
+            const overlay = document.getElementById('warningOverlay');
+            overlay.innerHTML = `
+                <div style="text-align: center; color: white;">
+                    <h2>🤖 AI Analyzing Your Answers...</h2>
+                    <p>Processing responses with artificial intelligence. Please wait...</p>
+                    <div style="margin-top: 20px;">
+                        <div style="width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #3498db; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto;"></div>
+                    </div>
+                </div>
+                <style>
+                    @keyframes spin {
+                        0% { transform: rotate(0deg); }
+                        100% { transform: rotate(360deg); }
+                    }
+                </style>
+            `;
+            overlay.style.display = 'flex';
+
+            const interviewData = {
+                candidateInfo: candidateInfo,
+                questions: questions,
+                answers: answers,
+                violations: violations,
+                duration: document.getElementById('timerDisplay').textContent,
+                tabSwitchCount: tabSwitchCount,
+                terminated: terminated,
+                submittedAt: new Date().toISOString()
+            };
+
+            console.log('🔥 INTERVIEW DATA:', interviewData);
+
+            try {
+                console.log('🔥 SENDING TO SERVER...');
+                
+                const response = await fetch('/interview/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(interviewData)
+                });
+
+                console.log('🔥 SERVER RESPONSE STATUS:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+
+                const result = await response.json();
+                console.log('🔥 SERVER RESULT:', result);
+                
+                // ✅ PROPERLY STOP EVERYTHING BEFORE SHOWING RESULTS
+                stopInterview();
+                
+                // ✅ SHOW AI RESULTS FIRST, THEN REDIRECT
+                showAIResults(result);
+                
+            } catch (error) {
+                console.error('🔥 ERROR:', error);
+                overlay.style.display = 'none';
+                alert('Error submitting interview: ' + error.message);
+            }
+        }
+
+        // ✅ RESTORED: Show AI Results Function
+        function showAIResults(result) {
+            const overlay = document.getElementById('warningOverlay');
+            const score = result.score || 0;
+            const maxScore = result.maxScore || 100;
+            const percentage = result.percentage || 0;
+            
+            let performanceLevel = '';
+            let performanceColor = '';
+            let performanceIcon = '';
+            
+            if (percentage >= 80) {
+                performanceLevel = 'Excellent';
+                performanceColor = '#27ae60';
+                performanceIcon = '🌟';
+            } else if (percentage >= 65) {
+                performanceLevel = 'Good';
+                performanceColor = '#3498db';
+                performanceIcon = '👍';
+            } else if (percentage >= 50) {
+                performanceLevel = 'Average';
+                performanceColor = '#f39c12';
+                performanceIcon = '⚡';
+            } else {
+                performanceLevel = 'Needs Improvement';
+                performanceColor = '#e74c3c';
+                performanceIcon = '📚';
+            }
+
+            overlay.innerHTML = `
+                <div style="background: white; color: #2c3e50; border-radius: 20px; padding: 40px; max-width: 700px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); max-height: 80vh; overflow-y: auto;">
+                    <div style="font-size: 60px; margin-bottom: 20px;">${performanceIcon}</div>
+                    <h2 style="color: #2c3e50; margin-bottom: 10px;">🤖 AI Analysis Complete!</h2>
+                    <p style="color: #7f8c8d; margin-bottom: 30px;">Your interview has been analyzed by artificial intelligence</p>
+                    
+                    <div style="background: linear-gradient(135deg, ${performanceColor}, ${performanceColor}dd); color: white; border-radius: 15px; padding: 25px; margin-bottom: 25px;">
+                        <h3 style="margin-bottom: 10px;">Your AI Score</h3>
+                        <div style="font-size: 48px; font-weight: bold; margin-bottom: 10px;">${score}/${maxScore}</div>
+                        <div style="font-size: 24px; margin-bottom: 5px;">${percentage}%</div>
+                        <div style="font-size: 16px; opacity: 0.9;">${performanceLevel}</div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 10px;">
+                            <div style="font-size: 18px; font-weight: bold; color: #3498db;">${Object.keys(result.answers || {}).length}</div>
+                            <div style="font-size: 12px; color: #7f8c8d;">Questions Answered</div>
+                        </div>
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 10px;">
+                            <div style="font-size: 18px; font-weight: bold; color: #27ae60;">${result.duration || '00:00:00'}</div>
+                            <div style="font-size: 12px; color: #7f8c8d;">Time Taken</div>
+                        </div>
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 10px;">
+                            <div style="font-size: 18px; font-weight: bold; color: ${(result.violations?.length || 0) > 0 ? '#e74c3c' : '#27ae60'};">${result.violations?.length || 0}</div>
+                            <div style="font-size: 12px; color: #7f8c8d;">Violations</div>
+                        </div>
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 10px;">
+                            <div style="font-size: 18px; font-weight: bold; color: ${(result.tabSwitchCount || 0) > 0 ? '#e74c3c' : '#27ae60'};">${result.tabSwitchCount || 0}</div>
+                            <div style="font-size: 12px; color: #7f8c8d;">Tab Switches</div>
+                        </div>
+                    </div>
+
+                    <div style="background: #ecf0f1; padding: 20px; border-radius: 10px; margin-bottom: 25px;">
+                        <h4 style="margin-bottom: 15px; color: #2c3e50;">🎯 AI Performance Analysis</h4>
+                        ${result.categoryScores ? Object.entries(result.categoryScores).map(([category, score]) => `
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <span style="font-size: 14px;">${category}</span>
+                                <span style="font-weight: bold; color: ${score >= 70 ? '#27ae60' : score >= 50 ? '#f39c12' : '#e74c3c'};">${score}%</span>
+                            </div>
+                        `).join('') : '<p style="color: #7f8c8d;">Category analysis not available</p>'}
+                    </div>
+
+                    <div style="background: #e8f5e8; border: 1px solid #27ae60; border-radius: 10px; padding: 15px; margin-bottom: 20px;">
+                        <h4 style="color: #27ae60; margin-bottom: 10px;">👤 Candidate Information</h4>
+                        <div style="font-size: 14px; color: #2c3e50; text-align: left;">
+                            <p><strong>Name:</strong> ${candidateInfo.name || 'N/A'}</p>
+                            <p><strong>Email:</strong> ${candidateInfo.email || 'N/A'}</p>
+                            <p><strong>Experience:</strong> ${candidateInfo.experience || 'Not specified'}</p>
+                            <p><strong>Position:</strong> ${candidateInfo.position || 'Not specified'}</p>
+                            <p><strong>Location:</strong> ${candidateInfo.location || 'N/A'}</p>
+                        </div>
+                    </div>
+
+                    <div style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 10px; padding: 15px; margin-bottom: 20px;">
+                        <h4 style="color: #856404; margin-bottom: 10px;">📋 Interview ID: ${result.interviewId || 'N/A'}</h4>
+                        <p style="font-size: 14px; color: #856404; margin: 0;">Your detailed results have been saved and will be reviewed by our technical team.</p>
+                    </div>
+
+                    <div style="display: flex; gap: 15px; justify-content: center;">
+                        <button onclick="goToThankYouPage('${result.interviewId}', '${percentage}', '${encodeURIComponent(candidateInfo.name || 'Candidate')}')" style="background: #3498db; color: white; border: none; padding: 12px 25px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.3s ease;">
+                            Continue to Thank You Page
+                        </button>
+                        <button onclick="tryCloseWindow()" style="background: #95a5a6; color: white; border: none; padding: 12px 25px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.3s ease;">
+                            Close Window
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            overlay.style.display = 'flex';
+        }
+
+        // ✅ Function to go to thank you page
+        function goToThankYouPage(interviewId, score, candidateName) {
+            console.log('🔥 Redirecting to thank you page...');
+            const redirectUrl = `/thank-you?id=${interviewId}&score=${score}&name=${candidateName}`;
+            console.log('🔥 REDIRECT URL:', redirectUrl);
+            window.location.href = redirectUrl;
+        }
+
+        // ✅ Function to try closing window
+        function tryCloseWindow() {
+            try {
+                window.close();
+                setTimeout(() => {
+                    alert('Please close this tab manually using Ctrl+W (Windows/Linux) or Cmd+W (Mac)');
+                }, 1000);
+            } catch (e) {
+                alert('Please close this tab manually using Ctrl+W (Windows/Linux) or Cmd+W (Mac)');
+            }
+        }
+
+        // ✅ ENHANCED CLOSE FUNCTION - REDIRECT TO THANK YOU PAGE
+        function closeInterview() {
+            if (confirm('Are you sure you want to close the interview?')) {
+                console.log('Redirecting to thank you page...');
+                
+                // Stop everything completely
+                stopInterview();
+                
+                // Redirect directly to thank you page instead of trying to close
+                const interviewId = Date.now().toString();
+                window.location.href = `/thank-you?id=${interviewId}&name=${encodeURIComponent(candidateInfo.name || 'Candidate')}`;
+            }
+        }
+
+        function endInterview() {
+            if (confirm('Are you sure you want to end the interview? This action cannot be undone.')) {
+                submitInterview();
+            }
+        }
+
+        // Handle candidate form submission
+        function handleCandidateForm() {
+            document.getElementById('candidateForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                console.log('Form submitted, collecting candidate information...');
+                
+                // Collect candidate information
+                candidateInfo = {
+                    name: document.getElementById('candidateName').value.trim(),
+                    email: document.getElementById('candidateEmail').value.trim(),
+                    phone: document.getElementById('candidatePhone').value.trim(),
+                    location: document.getElementById('candidateLocation').value.trim(),
+                    education: document.getElementById('candidateEducation').value,
+                    experience: document.getElementById('candidateExperience').value,
+                    position: document.getElementById('candidatePosition').value.trim() || 'Not specified',
+                    consent: document.getElementById('consentCheckbox').checked
+                };
+                
+                console.log('Candidate Info collected:', candidateInfo);
+                
+                // Validate required fields
+                if (!candidateInfo.name || !candidateInfo.email || !candidateInfo.phone || 
+                    !candidateInfo.location || !candidateInfo.education || !candidateInfo.consent) {
+                    alert('Please fill in all required fields and provide consent for video recording.');
+                    return;
+                }
+                
+                // Validate email format
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(candidateInfo.email)) {
+                    alert('Please enter a valid email address.');
+                    return;
+                }
+                
+                console.log('Validation passed, starting interview...');
+                
+                // Hide form overlay and start interview
+                document.getElementById('candidateFormOverlay').style.display = 'none';
+                
+                // Update interview header with candidate info
+                document.querySelector('.interview-info h2').textContent = `Welcome, ${candidateInfo.name}`;
+                document.querySelector('.interview-info p').textContent = `${candidateInfo.position} - Technical Assessment`;
+                
+                // Initialize the interview
+                initializeInterview();
+            });
+        }
+
+        // Event listeners
+        document.getElementById('startCamera').addEventListener('click', startCamera);
+        document.getElementById('endInterview').addEventListener('click', endInterview);
+
+        // Initialize when page loads
+        window.addEventListener('load', function() {
+            console.log('Page loaded, showing candidate form...');
+            document.getElementById('candidateFormOverlay').style.display = 'flex';
+            handleCandidateForm();
+        });
+
+        // ✅ ENHANCED PAGE UNLOAD CLEANUP
+        window.addEventListener('beforeunload', function(e) {
+            if (interviewStartTime) {
+                stopInterview(); // Clean up everything
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+
+        // Additional cleanup on page hide/unload
+        window.addEventListener('pagehide', function() {
+            if (videoStream) {
+                stopCamera();
+            }
+        });
+
+        // Cleanup when visibility changes (mobile browsers)
+        document.addEventListener('visibilitychange', function() {
+            if (document.visibilityState === 'hidden' && !interviewStartTime) {
+                // Only cleanup if interview hasn't started yet
+                if (videoStream) {
+                    stopCamera();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
