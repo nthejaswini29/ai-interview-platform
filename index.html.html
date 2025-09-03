@@ -1,59 +1,1493 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>AI Interview Questions</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 40px;
-      background-color: #f9f9f9;
-    }
-    h1 {
-      color: #333;
-    }
-    ul {
-      color: #555;
-      padding-left: 20px;
-    }
-    li {
-      margin-bottom: 10px;
-      font-size: 1.1em;
-    }
-    #error {
-      color: red;
-      font-weight: bold;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Techurate Systems - AI Interview Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #273b8f 0%, #8cc63e 100%);
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .candidate-form-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #273b8f 0%, #8cc63e 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .candidate-form-overlay input:focus,
+        .candidate-form-overlay select:focus {
+            outline: none;
+            border-color: #273b8f;
+            box-shadow: 0 0 0 3px rgba(39, 59, 143, 0.1);
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            margin: 10px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 300px;
+            background: linear-gradient(180deg, #273b8f 0%, #58585b 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .logo-container {
+            background: white;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .logo-text {
+            font-size: 16px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #273b8f, #8cc63e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 3px;
+        }
+
+        .logo-tagline {
+            font-size: 10px;
+            color: #58585b;
+            font-style: italic;
+            margin-bottom: 8px;
+        }
+
+        .logo h1 {
+            font-size: 14px;
+            margin-bottom: 3px;
+            color: #8cc63e;
+            font-weight: 600;
+        }
+
+        .logo p {
+            opacity: 0.8;
+            font-size: 10px;
+        }
+
+        .logo .company-link {
+            color: #8cc63e;
+            text-decoration: none;
+            font-size: 11px;
+            opacity: 0.7;
+            display: block;
+            margin-top: 5px;
+        }
+
+        .logo .company-link:hover {
+            opacity: 1;
+            text-decoration: underline;
+        }
+
+        /* NEW: Simplified Part Indicator for Left Sidebar */
+        .part-indicator {
+            background: linear-gradient(135deg, #273b8f, #58585b);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 15px;
+            text-align: center;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .part-indicator.part-b {
+            border: 2px solid #8cc63e;
+            box-shadow: 0 0 10px rgba(140, 198, 62, 0.3);
+        }
+
+        .part-indicator h3 {
+            font-size: 14px;
+            margin-bottom: 3px;
+        }
+
+        .part-indicator p {
+            font-size: 10px;
+            opacity: 0.9;
+            line-height: 1.2;
+        }
+
+        /* NEW: Enhanced Progress */
+        .progress-section {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 15px;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+
+        .part-progress-bar {
+            background: rgba(255, 255, 255, 0.2);
+            height: 6px;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .part-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #273b8f, #8cc63e);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .part-progress-fill.part-b {
+            background: linear-gradient(90deg, #8cc63e, #273b8f);
+        }
+
+        .part-breakdown {
+            font-size: 10px;
+            opacity: 0.8;
+            line-height: 1.2;
+        }
+
+        .video-container {
+            background: #1a1a1a;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            position: relative;
+            overflow: hidden;
+            display: block;
+            min-height: 140px;
+            height: 140px;
+        }
+
+        #candidateVideo {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+            border-radius: 8px;
+            display: block;
+            background: #2c3e50;
+        }
+
+        .video-placeholder {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            text-align: center;
+            z-index: 1;
+            font-size: 14px;
+        }
+
+        .video-status {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #e74c3c;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .video-status.active {
+            background: #8cc63e;
+        }
+
+        .controls {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            min-width: 70px;
+            font-size: 11px;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-success {
+            background: #8cc63e;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #58585b;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .timer {
+            background: rgba(255,255,255,0.1);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .timer h3 {
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .timer-display {
+            font-size: 20px;
+            font-weight: bold;
+            color: #8cc63e;
+        }
+
+        .warnings {
+            background: rgba(231, 76, 60, 0.1);
+            border: 2px solid #e74c3c;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 15px;
+            display: block !important;
+            visibility: visible !important;
+            min-height: 100px;
+            max-height: 140px;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .warnings h4 {
+            color: #e74c3c;
+            margin-bottom: 8px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: bold;
+        }
+
+        .warning-item {
+            background: rgba(231, 76, 60, 0.2);
+            padding: 6px;
+            border-radius: 4px;
+            margin-bottom: 4px;
+            font-size: 10px;
+            line-height: 1.2;
+            color: white;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #ecf0f1;
+        }
+
+        .interview-info h2 {
+            color: #2c3e50;
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .interview-info p {
+            color: #7f8c8d;
+            font-size: 16px;
+        }
+
+        /* NEW: Part Status Box on Right Side */
+        .part-status-box {
+            background: white;
+            border: 2px solid #273b8f;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            min-width: 200px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .part-status-box.part-b {
+            border-color: #8cc63e;
+        }
+
+        .part-status-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .part-badge {
+            background: #273b8f;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .part-badge.part-b {
+            background: #8cc63e;
+        }
+
+        .part-detail {
+            font-size: 14px;
+            color: #58585b;
+            font-weight: 500;
+        }
+
+        .part-progress-text {
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+
+        .question-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 5px solid #273b8f;
+            transition: all 0.3s ease;
+        }
+
+        .question-section.part-b {
+            border-left-color: #8cc63e;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .question-number {
+            background: #273b8f;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .question-number.part-b {
+            background: #273b8f;
+            border: 2px solid #8cc63e;
+        }
+
+        .difficulty {
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .difficulty.easy { background: #d5f4e6; color: #8cc63e; }
+        .difficulty.medium { background: #fff3cd; color: #f39c12; }
+        .difficulty.hard { background: #f8d7da; color: #e74c3c; }
+
+        .question-text {
+            font-size: 18px;
+            line-height: 1.6;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .answer-section {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .answer-textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 15px;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+
+        .answer-textarea:focus {
+            outline: none;
+            border-color: #8cc63e;
+        }
+
+        .question-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+        }
+
+        .nav-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #273b8f;
+            color: white;
+        }
+
+        .nav-btn:hover {
+            background: #8cc63e;
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .progress-bar {
+            flex: 1;
+            margin: 0 20px;
+            height: 8px;
+            background: #ecf0f1;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #273b8f, #8cc63e);
+            transition: width 0.3s ease;
+        }
+
+        /* NEW: Part Transition Screen */
+        .part-transition {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #273b8f, #58585b);
+            color: white;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1500;
+            text-align: center;
+        }
+
+        .transition-content {
+            max-width: 600px;
+            padding: 50px;
+        }
+
+        .transition-content h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+
+        .transition-content p {
+            font-size: 1.3em;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .continue-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 15px 40px;
+            border: 2px solid white;
+            border-radius: 50px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .continue-btn:hover {
+            background: white;
+            color: #273b8f;
+        }
+
+        .warning-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(231, 76, 60, 0.95);
+            color: white;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            flex-direction: column;
+        }
+
+        .warning-overlay h2 {
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+
+        .warning-overlay p {
+            font-size: 18px;
+            text-align: center;
+            max-width: 600px;
+        }
+
+        .force-focus-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+            flex-direction: column;
+        }
+
+        .already-completed {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                margin: 5px;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+
+            .candidate-form-overlay {
+                padding: 10px;
+            }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
 </head>
 <body>
-  <h1>Interview Questions</h1>
-  <ul id="questions-list"></ul>
-  <p id="error"></p>
+    <!-- Already Completed Overlay -->
+    <div class="already-completed" id="alreadyCompletedOverlay">
+        <div style="background: white; color: #2c3e50; border-radius: 20px; padding: 40px; max-width: 600px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2);">
+            <div style="font-size: 60px; margin-bottom: 20px;">⚠️</div>
+            <h2 style="color: #e74c3c; margin-bottom: 10px;">Interview Already Completed</h2>
+            <p style="color: #7f8c8d; margin-bottom: 30px;">You have already completed this interview. Multiple attempts are not allowed.</p>
+            
+            <div style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 10px; padding: 20px; margin: 20px 0;">
+                <h4 style="color: #856404; margin-bottom: 10px;">📋 Your Previous Interview</h4>
+                <p style="font-size: 14px; color: #856404; margin: 0;" id="previousInterviewInfo">
+                    If you believe this is an error, please contact our HR team.
+                </p>
+            </div>
+            
+            <div style="display: flex; gap: 15px; justify-content: center;">
+                <a href="https://techurate.com" style="background: #3498db; color: white; border: none; padding: 12px 25px; border-radius: 8px; font-size: 16px; font-weight: bold; text-decoration: none;">
+                    Visit Techurate Systems
+                </a>
+                <button onclick="contactHR()" style="background: #27ae60; color: white; border: none; padding: 12px 25px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer;">
+                    Contact HR
+                </button>
+            </div>
+        </div>
+    </div>
 
-  <script>
-    fetch('/questions')
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not OK');
+    <!-- Force Focus Overlay -->
+    <div class="force-focus-overlay" id="forceFocusOverlay">
+        <h2>🚨 ATTENTION: Return to Interview</h2>
+        <p style="margin: 20px 0; text-align: center; max-width: 600px;">
+            You have left the interview window. This action has been recorded.<br>
+            <strong>Click anywhere to return to your interview immediately.</strong>
+        </p>
+        <div style="margin-top: 20px;">
+            <button onclick="returnToInterview()" style="background: #e74c3c; color: white; border: none; padding: 15px 30px; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; animation: pulse 1s infinite;">
+                RETURN TO INTERVIEW NOW
+            </button>
+        </div>
+    </div>
+
+    <!-- Candidate Registration Form -->
+    <div class="candidate-form-overlay" id="candidateFormOverlay">
+        <div style="background: white; color: #2c3e50; border-radius: 20px; padding: 40px; max-width: 600px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto;">
+            <h2 style="color: #2c3e50; margin-bottom: 10px;">Techurate Systems</h2>
+            <h3 style="color: #273b8f; margin-bottom: 10px;">AI Interview Platform</h3>
+            <p style="color: #7f8c8d; margin-bottom: 30px;">Please fill in your details to start the technical assessment</p>
+            
+            <form id="candidateForm" style="text-align: left;">
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #2c3e50;">Full Name *</label>
+                    <input type="text" id="candidateName" required style="width: 100%; padding: 12px; border: 2px solid #ecf0f1; border-radius: 8px; font-size: 16px; box-sizing: border-box;">
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #2c3e50;">Email Address *</label>
+                    <input type="email" id="candidateEmail" required style="width: 100%; padding: 12px; border: 2px solid #ecf0f1; border-radius: 8px; font-size: 16px; box-sizing: border-box;">
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #2c3e50;">Phone Number *</label>
+                    <input type="tel" id="candidatePhone" required style="width: 100%; padding: 12px; border: 2px solid #ecf0f1; border-radius: 8px; font-size: 16px; box-sizing: border-box;">
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #2c3e50;">Location (City, Country) *</label>
+                    <input type="text" id="candidateLocation" required placeholder="e.g., Bangalore, India" style="width: 100%; padding: 12px; border: 2px solid #ecf0f1; border-radius: 8px; font-size: 16px; box-sizing: border-box;">
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #2c3e50;">Highest Education *</label>
+                    <select id="candidateEducation" required style="width: 100%; padding: 12px; border: 2px solid #ecf0f1; border-radius: 8px; font-size: 16px; box-sizing: border-box;">
+                        <option value="">Select your highest education</option>
+                        <option value="High School">High School</option>
+                        <option value="Diploma">Diploma</option>
+                        <option value="Bachelor's Degree">Bachelor's Degree</option>
+                        <option value="Master's Degree">Master's Degree</option>
+                        <option value="PhD">PhD</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #2c3e50;">Years of Experience</label>
+                    <select id="candidateExperience" style="width: 100%; padding: 12px; border: 2px solid #ecf0f1; border-radius: 8px; font-size: 16px; box-sizing: border-box;">
+                        <option value="">Select experience level</option>
+                        <option value="0-1 years">0-1 years (Fresher)</option>
+                        <option value="1-3 years">1-3 years (Junior)</option>
+                        <option value="3-5 years">3-5 years (Mid-level)</option>
+                        <option value="5-8 years">5-8 years (Senior)</option>
+                        <option value="8+ years">8+ years (Expert)</option>
+                    </select>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #2c3e50;">Position Applied For</label>
+                    <input type="text" id="candidatePosition" placeholder="e.g., Senior Java Developer" style="width: 100%; padding: 12px; border: 2px solid #ecf0f1; border-radius: 8px; font-size: 16px; box-sizing: border-box;">
+                </div>
+                
+                <div style="background: #e8f5e8; border: 1px solid #27ae60; border-radius: 10px; padding: 15px; margin-bottom: 20px;">
+                    <h4 style="color: #27ae60; margin-bottom: 10px;">📋 Interview Structure</h4>
+                    <ul style="font-size: 14px; color: #2c3e50; margin: 0; padding-left: 20px;">
+                        <li><strong>Part A (Questions 1-10): Theory & Conceptual Knowledge</strong></li>
+                        <li><strong>Part B (Questions 11-20): Practical Coding Challenges</strong></li>
+                        <li>Camera access is required throughout the interview</li>
+                        <li>Do not switch tabs or leave the interview window</li>
+                        <li>You can only attempt this interview once</li>
+                        <li>Expected duration: 20-45 minutes</li>
+                    </ul>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="display: flex; align-items: center; cursor: pointer;">
+                        <input type="checkbox" id="consentCheckbox" required style="margin-right: 10px; transform: scale(1.2);">
+                        <span style="font-size: 14px; color: #2c3e50;">I consent to video recording and monitoring during this interview for assessment purposes *</span>
+                    </label>
+                </div>
+                
+                <button type="submit" style="width: 100%; background: linear-gradient(135deg, #273b8f, #8cc63e); color: white; border: none; padding: 15px; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; transition: all 0.3s ease; box-sizing: border-box;">
+                    Start Techurate Interview
+                </button>
+            </form>
+
+            <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #ecf0f1;">
+                <p style="font-size: 12px; color: #7f8c8d;">
+                    Powered by <a href="https://techurate.com" target="_blank" style="color: #273b8f; text-decoration: none;">Techurate Systems</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Warning Overlay -->
+    <div class="warning-overlay" id="warningOverlay">
+        <h2>⚠️ Interview Violation Detected</h2>
+        <p>You have switched tabs or left the interview window. This action has been recorded. Please return to the interview immediately.</p>
+    </div>
+
+    <!-- Part Transition Screen -->
+    <div class="part-transition" id="partTransition">
+        <div class="transition-content">
+            <h1>🎉 Part A Complete!</h1>
+            <p>You've successfully completed the <strong>Theory & Conceptual Knowledge</strong> section.</p>
+            <p>Ready to move to <strong>Part B: Practical Coding Challenges</strong>?</p>
+            <button class="continue-btn" onclick="startPartB()">Continue to Part B 💻</button>
+        </div>
+    </div>
+
+    <!-- Main Interview Interface -->
+    <div class="container">
+        <div class="sidebar">
+            <div class="logo">
+                <div class="logo-container">
+                    <div class="logo-text">Techurate Systems</div>
+                    <div class="logo-tagline">Precision acquired</div>
+                </div>
+                <h1>AI Interview Platform</h1>
+                <p>Technical Assessment Portal</p>
+                <a href="https://techurate.com" target="_blank" class="company-link">techurate.com</a>
+            </div>
+
+            <!-- Simple Progress Section -->
+            <div class="progress-section">
+                <div class="progress-info">
+                    <span id="currentProgress">Question 1 of 20</span>
+                </div>
+                <div class="part-progress-bar">
+                    <div class="part-progress-fill" id="partProgressFill" style="width: 5%;"></div>
+                </div>
+            </div>
+
+            <div class="video-container">
+                <video id="candidateVideo" autoplay muted playsinline></video>
+                <div class="video-placeholder" id="videoPlaceholder">
+                    📹<br>
+                    Camera Preview<br>
+                    <small>Click "Start Camera" to begin</small>
+                </div>
+                <div class="video-status" id="videoStatus">Camera Off</div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-success" id="startCamera">Start Camera</button>
+                <button class="btn btn-danger" id="endInterview">End Interview</button>
+            </div>
+
+            <div class="timer">
+                <h3>Interview Time</h3>
+                <div class="timer-display" id="timerDisplay">00:00:00</div>
+            </div>
+
+            <!-- RED SECURITY LOG BOX - RESTORED -->
+            <div class="warnings">
+                <h4>⚠️ Security Log</h4>
+                <div id="warningsList">
+                    <div class="warning-item">No violations detected</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <div class="interview-info">
+                    <h2>Technical Interview</h2>
+                    <p>Techurate Systems - AI Assessment</p>
+                </div>
+                
+                <!-- NEW: Part A/B Status Box on Right Side -->
+                <div class="part-status-box" id="partStatusBox">
+                    <div class="part-status-indicator">
+                        <span class="part-badge part-a" id="partBadge">Part A</span>
+                        <span class="part-detail" id="partDetail">Theory & Concepts</span>
+                    </div>
+                    <div class="part-progress-text" id="partProgressText">Question 1 of 10 (Part A)</div>
+                </div>
+            </div>
+
+            <div class="question-section" id="questionSection">
+                <div class="question-header">
+                    <span class="question-number" id="questionNumber">Question 1 of 20</span>
+                    <span class="difficulty medium" id="questionDifficulty">Medium</span>
+                </div>
+                
+                <div class="question-text" id="questionText">
+                    Loading question...
+                </div>
+
+                <div class="answer-section">
+                    <textarea 
+                        class="answer-textarea" 
+                        id="answerTextarea" 
+                        placeholder="Type your answer here... Be specific and provide examples where possible."
+                        oninput="saveAnswer()"
+                    ></textarea>
+                </div>
+            </div>
+
+            <div class="question-navigation">
+                <button class="nav-btn btn-primary" id="prevBtn" onclick="previousQuestion()">← Previous</button>
+                
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                
+                <button class="nav-btn btn-primary" id="nextBtn" onclick="nextQuestion()">Next →</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Interview state
+        let currentQuestionIndex = 0;
+        let questions = [];
+        let answers = {};
+        let violations = [];
+        let interviewStartTime = null;
+        let timerInterval = null;
+        let tabSwitchCount = 0;
+        let cameraActive = false;
+        let candidateInfo = {};
+        let videoStream = null;
+        let interviewCompleted = false;
+
+        // Force focus functionality
+        let windowHasFocus = true;
+        let forceFocusEnabled = false;
+
+        // Check if interview already completed
+        function checkInterviewStatus(email) {
+            const completedInterviews = JSON.parse(localStorage.getItem('completedInterviews') || '[]');
+            return completedInterviews.includes(email.toLowerCase());
         }
-        return response.json();
-      })
-      .then(questions => {
-        const list = document.getElementById('questions-list');
-        list.innerHTML = '';
-        questions.forEach(q => {
-          const li = document.createElement('li');
-          li.textContent = q;
-          list.appendChild(li);
+
+        // Mark interview as completed
+        function markInterviewCompleted(email) {
+            const completedInterviews = JSON.parse(localStorage.getItem('completedInterviews') || '[]');
+            if (!completedInterviews.includes(email.toLowerCase())) {
+                completedInterviews.push(email.toLowerCase());
+                localStorage.setItem('completedInterviews', JSON.stringify(completedInterviews));
+            }
+        }
+
+        // Contact HR function
+        function contactHR() {
+            window.open('mailto:hr@techurate.com?subject=Interview Access Issue&body=Hi, I am experiencing an issue with accessing the technical interview. Please assist me.', '_blank');
+        }
+
+        // Force focus functions
+        function setupForceFocus() {
+            if (!forceFocusEnabled) return;
+
+            window.addEventListener('blur', function() {
+                if (interviewStartTime && !interviewCompleted) {
+                    windowHasFocus = false;
+                    showForceFocusOverlay();
+                    logViolation('Window lost focus - forcing return');
+                }
+            });
+
+            window.addEventListener('focus', function() {
+                if (!windowHasFocus) {
+                    windowHasFocus = true;
+                    hideForceFocusOverlay();
+                }
+            });
+
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden && interviewStartTime && !interviewCompleted) {
+                    windowHasFocus = false;
+                    showForceFocusOverlay();
+                    tabSwitchCount++;
+                    logViolation(`Tab switch detected - Force return (Count: ${tabSwitchCount})`);
+                } else if (!document.hidden) {
+                    windowHasFocus = true;
+                    hideForceFocusOverlay();
+                }
+            });
+        }
+
+        function showForceFocusOverlay() {
+            const overlay = document.getElementById('forceFocusOverlay');
+            overlay.style.display = 'flex';
+            
+            window.focus();
+            
+            const focusInterval = setInterval(() => {
+                if (windowHasFocus) {
+                    clearInterval(focusInterval);
+                } else {
+                    window.focus();
+                }
+            }, 500);
+        }
+
+        function hideForceFocusOverlay() {
+            document.getElementById('forceFocusOverlay').style.display = 'none';
+        }
+
+        function returnToInterview() {
+            windowHasFocus = true;
+            hideForceFocusOverlay();
+            window.focus();
+        }
+
+        // NEW: Enhanced Part A/B Display Functions
+        function updatePartDisplay() {
+            const isPartB = currentQuestionIndex >= 10;
+            
+            // Update Right Side - Part Status Box
+            const partStatusBox = document.getElementById('partStatusBox');
+            const partBadge = document.getElementById('partBadge');
+            const partDetail = document.getElementById('partDetail');
+            const partProgressText = document.getElementById('partProgressText');
+            
+            // Update Main Question Section
+            const questionSection = document.getElementById('questionSection');
+            const questionNumber = document.getElementById('questionNumber');
+            const partProgressFill = document.getElementById('partProgressFill');
+            
+            if (isPartB) {
+                // Part B - Coding
+                partStatusBox.className = 'part-status-box part-b';
+                partBadge.className = 'part-badge part-b';
+                partBadge.textContent = 'Part B';
+                partDetail.textContent = 'Coding Challenges';
+                partProgressText.textContent = `Question ${currentQuestionIndex - 9} of 10 (Part B)`;
+                
+                questionSection.className = 'question-section part-b';
+                questionNumber.className = 'question-number part-b';
+                partProgressFill.className = 'part-progress-fill part-b';
+            } else {
+                // Part A - Theory
+                partStatusBox.className = 'part-status-box';
+                partBadge.className = 'part-badge';
+                partBadge.textContent = 'Part A';
+                partDetail.textContent = 'Theory & Concepts';
+                partProgressText.textContent = `Question ${currentQuestionIndex + 1} of 10 (Part A)`;
+                
+                questionSection.className = 'question-section';
+                questionNumber.className = 'question-number';
+                partProgressFill.className = 'part-progress-fill';
+            }
+            
+            // Update simple progress display
+            const currentProgress = document.getElementById('currentProgress');
+            currentProgress.textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+            
+            // Update part progress bar
+            const overallProgress = ((currentQuestionIndex + 1) / questions.length) * 100;
+            partProgressFill.style.width = overallProgress + '%';
+        }
+
+        // NEW: Show Part Transition
+        function showPartTransition() {
+            document.getElementById('partTransition').style.display = 'flex';
+        }
+
+        // NEW: Start Part B
+        function startPartB() {
+            document.getElementById('partTransition').style.display = 'none';
+            currentQuestionIndex = 10;
+            displayCurrentQuestion();
+            updatePartDisplay();
+        }
+
+        // UPDATED: Initialize interview with 20 questions (Part A + Part B)
+        async function initializeInterview() {
+            try {
+                console.log('🎯 Fetching questions with Part A/B structure from server...');
+                
+                const questionsResponse = await fetch('/questions');
+                if (!questionsResponse.ok) {
+                    throw new Error(`HTTP error! status: ${questionsResponse.status}`);
+                }
+                const questionsData = await questionsResponse.json();
+                
+                console.log('📚 Questions data received:', questionsData);
+                
+                // Combine Part A and Part B questions in order
+                const allQuestions = [...questionsData.partA, ...questionsData.partB];
+                
+                questions = allQuestions.map((q, index) => {
+                    return {
+                        text: q.text || q.question || 'Question format error',
+                        difficulty: q.difficulty || 'medium',
+                        correctAnswer: q.expectedAnswer || null,
+                        keywords: q.keywords || [],
+                        index: index + 1,
+                        part: q.part || (index < 10 ? 'A' : 'B')
+                    };
+                });
+                
+                console.log(`📊 Loaded ${questions.length} total questions:`);
+                console.log(`📚 Part A (Theory): ${questionsData.partA.length} questions`);
+                console.log(`💻 Part B (Coding): ${questionsData.partB.length} questions`);
+                
+                if (questions.length === 0) {
+                    throw new Error('No questions received from server');
+                }
+                
+                displayCurrentQuestion();
+                updatePartDisplay();
+                updateProgress();
+                startTimer();
+                setupTabSwitchDetection();
+                setupVisibilityDetection();
+                preventRightClick();
+                preventKeyboardShortcuts();
+                
+                forceFocusEnabled = true;
+                setupForceFocus();
+                
+                await startCamera();
+                
+            } catch (error) {
+                console.error('❌ Error loading questions from server:', error);
+                console.log('🔄 Using fallback sample questions...');
+                
+                // Fallback sample questions
+                const sampleQuestions = [
+                    // Part A - Theory (1-10)
+                    { text: "Explain the concept of object-oriented programming and its key principles.", difficulty: "medium", part: "A" },
+                    { text: "What is the difference between a stack and a queue data structure?", difficulty: "easy", part: "A" },
+                    { text: "Describe how you would optimize a slow-performing SQL query.", difficulty: "hard", part: "A" },
+                    { text: "What are microservices and what are their advantages over monolithic architecture?", difficulty: "medium", part: "A" },
+                    { text: "Explain the concept of polymorphism with a practical example.", difficulty: "medium", part: "A" },
+                    { text: "How would you handle error handling in a RESTful API?", difficulty: "medium", part: "A" },
+                    { text: "What is the difference between synchronous and asynchronous programming?", difficulty: "easy", part: "A" },
+                    { text: "Describe the CAP theorem and its implications for distributed systems.", difficulty: "hard", part: "A" },
+                    { text: "How would you implement caching in a web application?", difficulty: "medium", part: "A" },
+                    { text: "Explain the concept of dependency injection and its benefits.", difficulty: "hard", part: "A" },
+                    
+                    // Part B - Coding (11-20)
+                    { text: "Write a Java method to find the second largest element in an array.", difficulty: "easy", part: "B" },
+                    { text: "Implement a thread-safe singleton pattern in Java.", difficulty: "medium", part: "B" },
+                    { text: "Create a function to reverse a linked list iteratively.", difficulty: "medium", part: "B" },
+                    { text: "Implement binary search algorithm with proper edge case handling.", difficulty: "medium", part: "B" },
+                    { text: "Write code to detect if a string is a palindrome ignoring spaces and case.", difficulty: "easy", part: "B" },
+                    { text: "Implement a basic LRU cache using appropriate data structures.", difficulty: "hard", part: "B" },
+                    { text: "Write a function to merge two sorted arrays into one sorted array.", difficulty: "medium", part: "B" },
+                    { text: "Implement depth-first search (DFS) for a graph.", difficulty: "hard", part: "B" },
+                    { text: "Create a function to check if parentheses are balanced in a string.", difficulty: "medium", part: "B" },
+                    { text: "Write code to find the longest substring without repeating characters.", difficulty: "hard", part: "B" }
+                ];
+                
+                questions = sampleQuestions.map((q, index) => ({
+                    text: q.text,
+                    difficulty: q.difficulty,
+                    correctAnswer: null,
+                    keywords: [],
+                    index: index + 1,
+                    part: q.part
+                }));
+                
+                displayCurrentQuestion();
+                updatePartDisplay();
+                updateProgress();
+                startTimer();
+                setupTabSwitchDetection();
+                setupVisibilityDetection();
+                preventRightClick();
+                preventKeyboardShortcuts();
+                
+                forceFocusEnabled = true;
+                setupForceFocus();
+                
+                await startCamera();
+            }
+        }
+
+        // Handle candidate form submission
+        document.getElementById('candidateForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            candidateInfo = {
+                name: document.getElementById('candidateName').value,
+                email: document.getElementById('candidateEmail').value,
+                phone: document.getElementById('candidatePhone').value,
+                location: document.getElementById('candidateLocation').value,
+                education: document.getElementById('candidateEducation').value,
+                experience: document.getElementById('candidateExperience').value,
+                position: document.getElementById('candidatePosition').value
+            };
+
+            // Check if interview already completed
+            if (checkInterviewStatus(candidateInfo.email)) {
+                document.getElementById('candidateFormOverlay').style.display = 'none';
+                document.getElementById('alreadyCompletedOverlay').style.display = 'flex';
+                return;
+            }
+
+            console.log('📋 Candidate registered:', candidateInfo);
+            document.getElementById('candidateFormOverlay').style.display = 'none';
+            initializeInterview();
         });
-      })
-      .catch(error => {
-        document.getElementById('error').textContent = 'Error loading questions: ' + error.message;
-        console.error('Fetch error:', error);
-      });
-  </script>
+
+        // UPDATED: Display current question with part awareness
+        function displayCurrentQuestion() {
+            if (questions.length === 0) return;
+            
+            const question = questions[currentQuestionIndex];
+            document.getElementById('questionText').textContent = question.text;
+            document.getElementById('questionNumber').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+            document.getElementById('questionDifficulty').textContent = question.difficulty;
+            document.getElementById('questionDifficulty').className = `difficulty ${question.difficulty.toLowerCase()}`;
+            
+            // Load saved answer
+            const savedAnswer = answers[currentQuestionIndex] || '';
+            document.getElementById('answerTextarea').value = savedAnswer;
+            
+            // Update navigation buttons
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            prevBtn.disabled = currentQuestionIndex === 0;
+            
+            // Special handling for transition between Part A and Part B
+            if (currentQuestionIndex === 9) {
+                nextBtn.textContent = 'Complete Part A →';
+                nextBtn.onclick = () => {
+                    saveAnswer();
+                    showPartTransition();
+                };
+            } else if (currentQuestionIndex === questions.length - 1) {
+                nextBtn.textContent = 'Submit Interview';
+                nextBtn.onclick = submitInterview;
+            } else {
+                nextBtn.textContent = 'Next →';
+                nextBtn.onclick = nextQuestion;
+            }
+        }
+
+        // UPDATED: Next question with part transition handling
+        function nextQuestion() {
+            saveAnswer();
+            
+            if (currentQuestionIndex === 9) {
+                // Show part transition instead of going directly to question 10
+                showPartTransition();
+                return;
+            }
+            
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                displayCurrentQuestion();
+                updatePartDisplay();
+                updateProgress();
+            }
+        }
+
+        // UPDATED: Previous question with part awareness
+        function previousQuestion() {
+            saveAnswer();
+            
+            if (currentQuestionIndex > 0) {
+                // Handle going back from Part B to Part A
+                if (currentQuestionIndex === 10) {
+                    currentQuestionIndex = 9;
+                } else {
+                    currentQuestionIndex--;
+                }
+                
+                displayCurrentQuestion();
+                updatePartDisplay();
+                updateProgress();
+            }
+        }
+
+        // Save current answer
+        function saveAnswer() {
+            const answerText = document.getElementById('answerTextarea').value;
+            answers[currentQuestionIndex] = answerText;
+            
+            // Auto-save to localStorage as backup
+            localStorage.setItem('interviewAnswers', JSON.stringify(answers));
+        }
+
+        // Update progress bar
+        function updateProgress() {
+            const progressPercentage = ((currentQuestionIndex + 1) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = progressPercentage + '%';
+        }
+
+        // Start camera
+        async function startCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        width: { ideal: 640 }, 
+                        height: { ideal: 480 },
+                        facingMode: 'user'
+                    }, 
+                    audio: false 
+                });
+                
+                videoStream = stream;
+                const video = document.getElementById('candidateVideo');
+                video.srcObject = stream;
+                video.style.display = 'block';
+                
+                document.getElementById('videoPlaceholder').style.display = 'none';
+                document.getElementById('videoStatus').textContent = 'Camera Active';
+                document.getElementById('videoStatus').className = 'video-status active';
+                
+                cameraActive = true;
+                console.log('📹 Camera started successfully');
+                
+            } catch (error) {
+                console.error('❌ Camera access failed:', error);
+                logViolation('Camera access denied or failed');
+                
+                document.getElementById('videoStatus').textContent = 'Camera Failed';
+                document.getElementById('videoStatus').style.background = '#e74c3c';
+                
+                alert('Camera access is required for this interview. Please allow camera access and refresh the page.');
+            }
+        }
+
+        // Start timer
+        function startTimer() {
+            interviewStartTime = Date.now();
+            timerInterval = setInterval(() => {
+                const elapsed = Date.now() - interviewStartTime;
+                const hours = Math.floor(elapsed / 3600000);
+                const minutes = Math.floor((elapsed % 3600000) / 60000);
+                const seconds = Math.floor((elapsed % 60000) / 1000);
+                
+                const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                document.getElementById('timerDisplay').textContent = timeString;
+            }, 1000);
+        }
+
+        // Setup tab switch detection
+        function setupTabSwitchDetection() {
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden && interviewStartTime && !interviewCompleted) {
+                    tabSwitchCount++;
+                    logViolation(`Tab switch detected (Count: ${tabSwitchCount})`);
+                    
+                    if (tabSwitchCount >= 3) {
+                        violations.push({
+                            type: 'interview_terminated',
+                            reason: 'Excessive tab switching',
+                            timestamp: new Date().toISOString(),
+                            questionIndex: currentQuestionIndex
+                        });
+                        
+                        alert('Interview terminated due to excessive tab switching.');
+                        submitInterview(true);
+                    } else {
+                        showWarningOverlay('Tab Switch Detected!', `Warning ${tabSwitchCount}/3: Please stay focused on the interview.`);
+                    }
+                }
+            });
+        }
+
+        // Setup visibility detection
+        function setupVisibilityDetection() {
+            window.addEventListener('blur', function() {
+                if (interviewStartTime && !interviewCompleted) {
+                    logViolation('Window lost focus');
+                }
+            });
+        }
+
+        // Prevent right-click
+        function preventRightClick() {
+            document.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                logViolation('Right-click attempt detected');
+            });
+        }
+
+        // Prevent keyboard shortcuts
+        function preventKeyboardShortcuts() {
+            document.addEventListener('keydown', function(e) {
+                // Prevent common shortcuts that could be used for cheating
+                if ((e.ctrlKey || e.metaKey) && (e.key === 't' || e.key === 'n' || e.key === 'w' || e.key === 'r')) {
+                    e.preventDefault();
+                    logViolation(`Blocked keyboard shortcut: ${e.key}`);
+                }
+                
+                if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+                    e.preventDefault();
+                    logViolation('Developer tools access attempt');
+                }
+            });
+        }
+
+        // Log violation
+        function logViolation(violation) {
+            const timestamp = new Date().toLocaleTimeString();
+            violations.push({
+                type: 'security_violation',
+                description: violation,
+                timestamp: new Date().toISOString(),
+                questionIndex: currentQuestionIndex
+            });
+            
+            const warningsList = document.getElementById('warningsList');
+            const warningItem = document.createElement('div');
+            warningItem.className = 'warning-item';
+            warningItem.textContent = `${timestamp}: ${violation}`;
+            
+            if (warningsList.children[0] && warningsList.children[0].textContent === 'No violations detected') {
+                warningsList.innerHTML = '';
+            }
+            
+            warningsList.appendChild(warningItem);
+            warningsList.scrollTop = warningsList.scrollHeight;
+            
+            console.warn('⚠️ Security violation:', violation);
+        }
+
+        // Show warning overlay
+        function showWarningOverlay(title, message) {
+            const overlay = document.getElementById('warningOverlay');
+            overlay.querySelector('h2').textContent = title;
+            overlay.querySelector('p').textContent = message;
+            overlay.style.display = 'flex';
+            
+            setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 3000);
+        }
+
+        // Submit interview
+        async function submitInterview(terminated = false) {
+            interviewCompleted = true;
+            clearInterval(timerInterval);
+            
+            // Stop camera
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+            }
+            
+            // Mark interview as completed
+            markInterviewCompleted(candidateInfo.email);
+            
+            const submissionData = {
+                candidateInfo: candidateInfo,
+                questions: questions,
+                answers: Object.values(answers),
+                violations: violations,
+                duration: Date.now() - interviewStartTime,
+                tabSwitchCount: tabSwitchCount,
+                terminated: terminated
+            };
+            
+            console.log('📤 Submitting interview data:', submissionData);
+            
+            try {
+                const response = await fetch('/interview/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(submissionData)
+                });
+                
+                const result = await response.json();
+                console.log('✅ Interview submission result:', result);
+                
+                // Clear localStorage
+                localStorage.removeItem('interviewAnswers');
+                
+                // Show success message
+                alert(`Interview submitted successfully! 
+                
+Overall Score: ${result.percentage}%
+Part A (Theory): ${result.partAScore}%  
+Part B (Coding): ${result.partBScore}%
+
+Thank you for taking the Techurate Systems technical assessment.`);
+                
+                // Redirect to company website
+                window.location.href = 'https://techurate.com';
+                
+            } catch (error) {
+                console.error('❌ Error submitting interview:', error);
+                alert('There was an error submitting your interview. Please contact HR at hr@techurate.com');
+            }
+        }
+
+        // Event listeners
+        document.getElementById('startCamera').addEventListener('click', startCamera);
+        document.getElementById('endInterview').addEventListener('click', () => {
+            if (confirm('Are you sure you want to end the interview? This action cannot be undone.')) {
+                submitInterview(false);
+            }
+        });
+
+        // Auto-save answers periodically
+        setInterval(() => {
+            if (interviewStartTime && !interviewCompleted) {
+                saveAnswer();
+            }
+        }, 10000);
+
+        // Initialize on page load
+        console.log('🚀 Techurate Systems AI Interview Platform with Part A/B Separation Loaded');
+        console.log('📚 Part A: Theory & Conceptual Knowledge (Questions 1-10)');
+        console.log('💻 Part B: Practical Coding Challenges (Questions 11-20)');
+    </script>
 </body>
 </html>
-
-
